@@ -1,0 +1,204 @@
+def carbon_footprint():
+    print("Welcome to the Carbon Footprint Calculator")
+    print("Answer the following questions to estimate your household's carbon footprint.")
+    
+    def ask(prompt, valid):
+        while True:
+            ans = input(prompt).strip().lower()
+            if ans in valid:
+                return ans
+            print(f" Invalid choice. Please enter one of: {', '.join(valid)}")
+
+    # Question 1
+    print("\n1. How would you describe your household's overall energy consumption?")
+    print(" a) Low (I'm very careful)")
+    print(" b) Average")
+    print(" c) High (I leave things on)")
+    question1 = ask("Choose (a/b/c): ", {'a', 'b', 'c'})
+
+    # Question 2
+    print("\n2. What type of building do you live in?")
+    print(" a) Apartment complex")
+    print(" b) House in an urban area")
+    print(" c) House in a rural place")
+    question2 = ask("Choose (a/b/c): ", {'a', 'b', 'c'})
+
+    # Question 3
+    print("\n3. What is your primary source of heating?")
+    print(" a) No central heat")
+    print(" b) Natural Gas")
+    print(" c) Heating Oil/Propane")
+    print(" d) Electricity")
+    question3 = ask("Choose (a/b/c/d): ", {'a', 'b', 'c', 'd'})
+
+    # Question 4
+    print("\n4. Do you actively buy green energy or use solar power?")
+    print(" a) Yes, fully")
+    print(" b) Partially")
+    print(" c) No")
+    question4 = ask("Choose (a/b/c): ", {'a', 'b', 'c'})
+
+    # Scoring system
+
+    score = 0
+    # Question1 scoring
+    if question1 == 'a': 
+        score += 1
+    elif question1 == 'b': 
+        score += 3
+    else: # question 1 == 'c'
+        score += 5
+
+    # Question2 scoring
+    if question2 == 'a': 
+        score += 2
+    elif question2 == 'b': 
+        score += 3
+    else: # question 2 == 'c'
+        score += 4
+
+    # Question3 scoring
+    if question3 == 'a': 
+        score += 1
+    elif question3 == 'b': 
+        score += 3
+    elif question3 == 'c': 
+        score += 4
+    else: # question 3 == 'd': 
+        score += 5
+
+    # Question4 scoring
+    if question4 == 'a': 
+        score += 1
+    elif question4 == 'b': 
+        score += 3
+    else: # question 4 == 'c': 
+        score += 5
+    return score
+
+    # Result interpretation
+
+# Importing necessary libraries.
+import os
+import re
+import difflib
+import pandas as pd
+
+# The name of the user.
+while True:
+    name = input("What is your name? ")
+    if name.isalpha():
+        break
+    else:
+        print("Use letters only, no numbers.")
+
+# Age of user between 17 and 99.
+while True:
+    try:
+        age = int(input("How old are you? "))
+        if 17 <= age <= 99:
+            break
+        else:
+            print("Please enter an age between 17 and 99.")
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+
+# Additional comment.
+print("Now let's see where you're from.")
+
+# Loading country list from CSV file and joining it to a list.
+script_dir = os.path.dirname(os.path.abspath(__file__))
+file_path = os.path.join(script_dir, "country.csv")
+
+# Read the CSV file into a DataFrame
+try:
+    df = pd.read_csv(file_path)
+except FileNotFoundError:
+    print(f"CSV file not found at: {file_path}")
+    df = None
+except Exception as e:
+    print("Error reading CSV:", e)
+    df = None
+
+# Extract the first column as a list.
+if df is not None:
+    # Try common column names first, otherwise use the first column
+    preferred = ["country", "Country"]
+    chosen_col = None
+    for col in preferred:
+        if col in df.columns:
+            chosen_col = col
+            break
+    if chosen_col is None:
+        # fallback to the first column
+        chosen_col = df.columns[0]
+
+    # Convert the column to a list of strings.
+    my_list = df[chosen_col].astype(str).tolist()
+    print("Loaded list from CSV (column:", chosen_col, "):", my_list)
+    print("Available columns:", df.columns.tolist())
+
+    # Build a normalized set for case-insensitive checks
+    available = {item.strip().lower() for item in my_list}
+
+    # Ask for country and validate against CSV list
+    while True:
+        country = input("What country are you from? ").strip()
+        # allow letters, spaces and hyphens (e.g., "United Kingdom", "Timor-Leste")
+        if not re.match(r'^[A-Za-z\s\-]+$', country):
+            print("Use letters, spaces and hyphens only; no numbers or symbols.")
+            continue
+
+        if country.lower() in available:
+            print(f"'{country}' is available.")
+            break
+        else:
+            print(f"'{country}' is not available.")
+            # try to suggest close matches from the CSV list
+            suggestions = difflib.get_close_matches(country, my_list, n=3, cutoff=0.6)
+            if suggestions:
+                print("Did you mean:", ", ".join(suggestions))
+            else:
+                # show a short sample of available options to avoid flooding the console
+                sample = ", ".join(my_list[:10])
+                print("Available examples:", sample + (", ..." if len(my_list) > 10 else ""))
+            # loop continues until user enters a valid country
+else:
+   # If CSV couldn't be loaded, allow indefinite valid-text entries without CSV validation
+    print("Proceeding without country list validation. Enter 'done' to finish.")
+    selected_countries = []
+    while True:
+        country = input("Country (or 'done' to finish): ").strip()
+        if country.lower() in ("done", "exit"):
+            break
+        cleaned = country.replace(" ", "").replace("-", "")
+        if cleaned == "":
+            print("Please enter a country name or 'done' to finish.")
+            continue
+        if not cleaned.isalpha():
+            print("Use letters, spaces and hyphens only; no numbers or symbols.")
+            continue
+        if country not in selected_countries:
+            selected_countries.append(country)
+            print("Added:", country)
+
+    if selected_countries:
+        print("Selected countries:", ", ".join(selected_countries))
+    else:
+        print("No countries selected.")
+
+score2 = carbon_footprint()
+print("\nCalculating your carbon footprint...")
+
+if score2 <= 8:
+    result = "Low footprint, Great job! You're very eco friendly."
+elif 9 <= score2 <= 14:
+    result = "Moderate footprint, You are doing okay, but there is room to improve."
+else:
+    result = "High footprint, Try adopting more energy saving habits."
+
+print(f"\nYour total score: {score2}")
+print(result)
+
+if __name__ == "__main__":
+    carbon_footprint()
