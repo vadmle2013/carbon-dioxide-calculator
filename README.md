@@ -7,4 +7,6 @@ For the program to work properly, you need to download the following libraries:
 - import difflib
 - import pandas as pd
 
+The code is currently with all the features, however in next phase we would like to include elements that add design and make the coding look more stylistically complex and advanced.
+
 What we want to achieve and the impact of our code is that when people see the great damage they are causing to the planet, they will become more aware of what they are doing and try to reduce their carbon footprint, thus helping to make a difference and reduce environmental pollution.
